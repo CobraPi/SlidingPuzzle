@@ -16,20 +16,25 @@
 
 #include "vertex.h"
 
+class OGLItem;
+
 class SlidingPuzzle2DRenderer : public QObject, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    explicit SlidingPuzzle2DRenderer(QObject *parent = 0);
+    explicit SlidingPuzzle2DRenderer(OGLItem *parent = 0);
 
     void setViewportSize(const QSize &size);
     void setWindow(QQuickWindow *window);
+    int getClosestCell(int x, int y);
 
     ~SlidingPuzzle2DRenderer();
 public slots:
     void paint();
 
 private:
+    OGLItem* oglItem;
+
     QSize viewportSize;
     QOpenGLShaderProgram *prog;
     QOpenGLVertexArrayObject vao;
