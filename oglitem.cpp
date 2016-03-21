@@ -25,9 +25,9 @@ void OGLItem::handleWindowChanged(QQuickWindow *win)
 
 void OGLItem::handleMouseClicked(int x, int y)
 {
-    qDebug() << "Mouse Clicked: " << x << ", " << y;
-    int hit = sp2DRenderer->handleMouseHit(x, y);
-    qDebug() << "Hit: " << hit;
+//    qDebug() << "Mouse Clicked: " << x << ", " << y;
+    sp2DRenderer->handleMouseHit(x, y);
+//    qDebug() << "Hit: " << hit;
 }
 
 void OGLItem::startGame(int size)

@@ -39,6 +39,81 @@ Window {
         }
     }
 
+    Item {
+        id: miniImage
+        width: mainWin.width
+        height: mainWin.height
+
+        Item {
+            id: miniPicContainer
+            anchors.right: parent.right
+            anchors.top: parent.top
+            state: "min"
+
+            Image {
+                source: "test_cat.png"
+                anchors.fill: parent
+            }
+
+            Rectangle {
+                anchors.fill: parent
+                color: Qt.rgba(1,1,1,0)
+                border {
+                    width: 3
+                    color: "black"
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onEntered: {
+                    miniPicContainer.state = "max"
+                }
+
+                onExited: {
+                    miniPicContainer.state = "min"
+                }
+            }
+
+            states: [
+                State {
+                    name: "max"
+                    PropertyChanges {
+                        target: miniPicContainer
+                        width: miniImage.width < miniImage.height ? miniImage.width/2 : miniImage.height/2
+                        height: miniImage.width < miniImage.height ? miniImage.width/2 : miniImage.height/2
+                        opacity: 1
+                    }
+                },
+                State {
+                    name: "min"
+                    PropertyChanges {
+                        target: miniPicContainer
+                        width: 50
+                        height: 50
+                        opacity: .5
+                    }
+                }
+            ]
+
+            transitions: [
+                Transition {
+                    NumberAnimation {
+                        properties: "width, height, opacity"
+                        easing.type: Easing.OutQuad
+                        duration: 500
+                    }
+                }
+
+            ]
+
+            PropertyAnimation {
+                id: minAnimation
+                target: miniPicContainer
+            }
+        }
+    }
 
     Item{
         id: endItem

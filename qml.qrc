@@ -1,9 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>main.qml</file>
         <file>sliding2d.frag</file>
         <file>sliding2d.vert</file>
-        <file>test_texture.png</file>
         <file>test_cat.png</file>
+        <file>main.qml</file>
     </qresource>
 </RCC>

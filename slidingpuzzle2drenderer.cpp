@@ -122,7 +122,7 @@ int SlidingPuzzle2DRenderer::handleMouseHit(int x, int y)
 
     if (checkForComplete())
     {
-        qDebug() << "Win";
+//        qDebug() << "Win";
         hiddenInstance = -1;
         oglItem->endGame();
     }
@@ -303,8 +303,8 @@ void SlidingPuzzle2DRenderer::paint()
 
     glDisable(GL_DEPTH_TEST);
 
-    glClearColor(.5, 0, .5, 1);
-//    glClearColor(0,0,0,1);
+//    glClearColor(.5, .5, .5, 1);
+    glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
 
 //    glEnable(GL_BLEND);
