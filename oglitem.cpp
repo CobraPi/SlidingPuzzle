@@ -17,13 +17,6 @@ void OGLItem::handleWindowChanged(QQuickWindow *win)
     }
 }
 
-void OGLItem::handleMouseClicked(int x, int y)
-{
-    qDebug() << "Mouse Clicked: " << x << ", " << y;
-    int hit = sp2DRenderer->getClosestCell(x, y);
-    qDebug() << "Hit: " << hit;
-}
-
 void OGLItem::cleanup()
 {
     if (sp2DRenderer) {
@@ -35,7 +28,7 @@ void OGLItem::cleanup()
 void OGLItem::sync()
 {
     if (!sp2DRenderer) {
-        sp2DRenderer = new SlidingPuzzle2DRenderer(this);
+        sp2DRenderer = new SlidingPuzzle2DRenderer();
         connect(window(), &QQuickWindow::beforeRendering, sp2DRenderer, &SlidingPuzzle2DRenderer::paint, Qt::DirectConnection);
     }
     sp2DRenderer->setViewportSize(window()->size() * window()->devicePixelRatio());

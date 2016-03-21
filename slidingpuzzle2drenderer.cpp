@@ -7,13 +7,11 @@
 #include <QOpenGLFunctions_4_3_Core>
 #include <QtGui/qopengl.h>
 
-#include "oglitem.h"
 #include "slidingpuzzleutility.h"
 #include "vertex.h"
 
-SlidingPuzzle2DRenderer::SlidingPuzzle2DRenderer(OGLItem *parent)
+SlidingPuzzle2DRenderer::SlidingPuzzle2DRenderer(QObject *parent) : QObject(parent)
 {
-    oglItem = parent;
     initializeOpenGLFunctions();
 
     prog = new QOpenGLShaderProgram();
@@ -72,28 +70,24 @@ SlidingPuzzle2DRenderer::SlidingPuzzle2DRenderer(OGLItem *parent)
     indicies.append(2);
     indicies.append(3);
 
-    projectionMat.ortho(-1, 1, -1, 1, .01, 10);
+
 }
 
 void SlidingPuzzle2DRenderer::setViewportSize(const QSize &size)
 {
     viewportSize = size;
-//    projectionMat.perspective(45, (float) size.width()/size.height(), .01, 10);
+    projectionMat.setToIdentity();
+    projectionMat.perspective(45, (float) size.width()/size.height(), .01, 10);
 }
 
 void SlidingPuzzle2DRenderer::setWindow(QQuickWindow *window)
 {
-    //qDebug() << "Window Set";
+    qDebug() << "Window Set";
     this->window = window;
-
     funcs = (QOpenGLFunctions_4_3_Core*)QOpenGLContext::currentContext()->versionFunctions();
 
     prog->bind();
-    if (vao.isCreated())
-    {
-        vao.create();
-    }
-
+    vao.create();
     vao.bind();
     prog->enableAttributeArray(instancePosAttr);
     funcs->glVertexAttribDivisor(instancePosAttr, 1);
@@ -121,7 +115,7 @@ void SlidingPuzzle2DRenderer::setWindow(QQuickWindow *window)
     positionBuffer.create();
     positionBuffer.bind();
 
-    puzzleSize = 4;
+    puzzleSize = 2;
     float fsize = (float)puzzleSize;
     for (int i=0; i<puzzleSize; i++)
     {
@@ -138,34 +132,7 @@ void SlidingPuzzle2DRenderer::setWindow(QQuickWindow *window)
     cameraMat.setToIdentity();
     cameraMat.translate(-1-(1/fsize), -1-(1/fsize), -3);
 
-    modelMat.setToIdentity();
     modelMat.scale(2/fsize);
-}
-
-int SlidingPuzzle2DRenderer::getClosestCell(int x, int y)
-{
-    int hit = -1;
-
-    // Set bottom left as (0,0)
-    QVector4D worldC(x, oglItem->height() - y, 0, 1);
-
-    int halfww = oglItem->width()/2;
-    int halfwh = oglItem->height()/2;
-
-    worldC.setX((worldC.x() - halfww) / halfww);
-    worldC.setY((worldC.y() - halfwh) / halfwh);
-
-    worldC = /*projectionMat * cameraMat * modelMat **/  worldC;
-
-    qDebug() << "Coords: " << worldC;
-
-    for(int i=0; i<positions.size(); i++)
-    {
-        QVector4D translatedPos = projectionMat * cameraMat *  modelMat *  QVector4D(positions[i].x(), positions[i].y(), 0, 1);
-        qDebug() << "Pos: " << positions[i] << "->" << translatedPos;
-    }
-
-    return hit;
 }
 
 SlidingPuzzle2DRenderer::~SlidingPuzzle2DRenderer()
@@ -181,7 +148,6 @@ void SlidingPuzzle2DRenderer::paint()
         return;
     }
 
-    vao.bind();
     prog->setUniformValue(viewProjMatrixAttr, projectionMat * cameraMat);
     prog->setUniformValue(modelMatrixAttr, modelMat);
 
@@ -189,13 +155,11 @@ void SlidingPuzzle2DRenderer::paint()
     prog->setUniformValue("texture", 0);
     texture->bind();
 
-//    qDebug() << "size: " << oglItem->width() << ", " << oglItem->height();
-//    qDebug() << "pos: " << oglItem->x() << ", " << oglItem->y();
-    glViewport(oglItem->x(), oglItem->y(), oglItem->width(), oglItem->height());
+    glViewport(0, 0, viewportSize.width(), viewportSize.height());
 
     glDisable(GL_DEPTH_TEST);
 
-    glClearColor(.5, 0, .5, 1);
+    glClearColor(.5, .5, .5, 1);
 //    glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -219,6 +183,5 @@ void SlidingPuzzle2DRenderer::paint()
     indexBuffer.release();
     vao.release();
 
-    glClearColor(1,1,1,1);
     window->resetOpenGLState();
 }
