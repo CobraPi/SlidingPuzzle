@@ -73,6 +73,7 @@ private:
 
     QVector<int> getHiddenNeighbors();
     void checkForSwap(int hit);
+    bool checkForComplete();
 };
 
 #endif // SLIDINGPUZZLE2DRENDERER_H

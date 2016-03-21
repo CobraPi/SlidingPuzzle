@@ -102,6 +102,7 @@ void SlidingPuzzle2DRenderer::resetPuzzle(int size)
 //    qDebug() << "Hidden: " << hiddenInstance;
 
     int swapCount = size*size*size;
+    swapCount = 1; // For win testing
     for (int i=0; i<swapCount; i++)
     {
         auto n = getHiddenNeighbors();
@@ -112,6 +113,11 @@ void SlidingPuzzle2DRenderer::resetPuzzle(int size)
 
 int SlidingPuzzle2DRenderer::handleMouseHit(int x, int y)
 {
+    // Ignore hit if game complete
+    if (hiddenInstance == -1)
+    {
+        return -1;
+    }
     int hit = -1;
 
     // Set bottom left as (0,0)
@@ -145,6 +151,12 @@ int SlidingPuzzle2DRenderer::handleMouseHit(int x, int y)
     }
 
     checkForSwap(hit);
+
+    if (checkForComplete())
+    {
+        qDebug() << "Win";
+        hiddenInstance = -1;
+    }
 
     oglItem->window()->update();
 //    qDebug() << "Hit: " << hit;
@@ -191,6 +203,25 @@ void SlidingPuzzle2DRenderer::checkForSwap(int hit)
             break;
         }
     }
+}
+
+bool SlidingPuzzle2DRenderer::checkForComplete()
+{
+    int ri = 0;
+    for (int i=0; i<puzzleSize; i++)
+    {
+        for (int j=0; j<puzzleSize; j++)
+        {
+            auto pos = QVector3D(i+1, j+1, 0);
+            if (pos != positions[ri])
+            {
+                return false;
+            }
+            ri++;
+        }
+    }
+
+    return true;
 }
 
 void SlidingPuzzle2DRenderer::setViewportSize(const QSize &size)
@@ -283,8 +314,8 @@ void SlidingPuzzle2DRenderer::paint()
 //    glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     funcs->glDrawElementsInstanced(GL_TRIANGLES,
                                    indicies.size(),
@@ -303,6 +334,5 @@ void SlidingPuzzle2DRenderer::paint()
     indexBuffer.release();
     vao.release();
 
-    glClearColor(1,1,1,1);
-    window->resetOpenGLState();
+    oglItem->window()->resetOpenGLState();
 }
