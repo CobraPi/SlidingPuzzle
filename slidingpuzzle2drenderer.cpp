@@ -5,7 +5,6 @@
 #include <QVector>
 #include <QVector3D>
 #include <QOpenGLFunctions_4_3_Core>
-#include <QtGui/qopengl.h>
 
 #include "oglitem.h"
 #include "slidingpuzzleutility.h"
@@ -13,6 +12,7 @@
 
 SlidingPuzzle2DRenderer::SlidingPuzzle2DRenderer(OGLItem *parent)
 {
+    initialized = false;
     oglItem = parent;
     initializeOpenGLFunctions();
 
@@ -83,17 +83,15 @@ void SlidingPuzzle2DRenderer::setViewportSize(const QSize &size)
 
 void SlidingPuzzle2DRenderer::setWindow(QQuickWindow *window)
 {
-    //qDebug() << "Window Set";
+//    qDebug() << "Window Set";
     this->window = window;
 
     funcs = (QOpenGLFunctions_4_3_Core*)QOpenGLContext::currentContext()->versionFunctions();
-
     prog->bind();
-    if (vao.isCreated())
+    if (!vao.isCreated())
     {
         vao.create();
     }
-
     vao.bind();
     prog->enableAttributeArray(instancePosAttr);
     funcs->glVertexAttribDivisor(instancePosAttr, 1);
@@ -121,25 +119,11 @@ void SlidingPuzzle2DRenderer::setWindow(QQuickWindow *window)
     positionBuffer.create();
     positionBuffer.bind();
 
-    puzzleSize = 4;
-    float fsize = (float)puzzleSize;
-    for (int i=0; i<puzzleSize; i++)
-    {
-        for (int j=0; j<puzzleSize; j++)
-        {
-            auto pos = QVector3D(i+1, j+1, 0);
-            positions.append(pos);
-//            qDebug() << "Position: " << pos;
-        }
-    }
-    positionBuffer.allocate(positions.constData(), sizeof(QVector3D) * positions.size());
-    prog->setAttributeBuffer(instancePosAttr, GL_FLOAT, 0, 3);
-
     cameraMat.setToIdentity();
-    cameraMat.translate(-1-(1/fsize), -1-(1/fsize), -3);
+    cameraMat.translate(-1-(1.0f/puzzleSize), -1-(1.0f/puzzleSize), -3);
 
     modelMat.setToIdentity();
-    modelMat.scale(2/fsize);
+    modelMat.scale(2.0f/puzzleSize);
 }
 
 int SlidingPuzzle2DRenderer::getClosestCell(int x, int y)
@@ -155,7 +139,7 @@ int SlidingPuzzle2DRenderer::getClosestCell(int x, int y)
     worldC.setX((worldC.x() - halfww) / halfww);
     worldC.setY((worldC.y() - halfwh) / halfwh);
 
-    worldC = /*projectionMat * cameraMat * modelMat **/  worldC;
+    worldC = /*projectionMat * cameraMat * modelMat **/ worldC;
 
     qDebug() << "Coords: " << worldC;
 
@@ -181,7 +165,26 @@ void SlidingPuzzle2DRenderer::paint()
         return;
     }
 
+    //funcs = (QOpenGLFunctions_4_3_Core*)QOpenGLContext::currentContext()->versionFunctions();
+
+    prog->bind();
     vao.bind();
+    positionBuffer.bind();
+
+    puzzleSize = 4;
+    positions.clear();
+    for (int i=0; i<puzzleSize; i++)
+    {
+        for (int j=0; j<puzzleSize; j++)
+        {
+         auto pos = QVector3D(i+1, j+1, 0);
+         positions.append(pos);
+        //   qDebug() << "Position: " << pos;
+        }
+    }
+    positionBuffer.allocate(positions.constData(), sizeof(QVector3D) * positions.size());
+    prog->setAttributeBuffer(instancePosAttr, GL_FLOAT, 0, 3);
+
     prog->setUniformValue(viewProjMatrixAttr, projectionMat * cameraMat);
     prog->setUniformValue(modelMatrixAttr, modelMat);
 
@@ -220,5 +223,5 @@ void SlidingPuzzle2DRenderer::paint()
     vao.release();
 
     glClearColor(1,1,1,1);
-    window->resetOpenGLState();
+//    window->resetOpenGLState();
 }
