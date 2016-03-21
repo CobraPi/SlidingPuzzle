@@ -27,6 +27,7 @@ public:
     void setViewportSize(const QSize &size);
     void setWindow(QQuickWindow *window);
     int getClosestCell(int x, int y);
+    void resetPuzzle(int size);
 
     ~SlidingPuzzle2DRenderer();
 public slots:
@@ -57,9 +58,12 @@ private:
     std::string vertSource;
     std::string fragSource;
 
+    int hiddenInstance;
+    int hiddenPosition;
     int puzzleSize;
 
     int sizeAttr;
+    int hiddenInstanceAttr;
     int modelMatrixAttr;
     int viewProjMatrixAttr;
     int instancePosAttr;

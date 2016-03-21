@@ -5,6 +5,7 @@
 OGLItem::OGLItem()
 {
     sp2DRenderer = nullptr;
+    setFlag(QQuickItem::ItemHasContents, true);
     connect(this, &QQuickItem::windowChanged, this, &OGLItem::handleWindowChanged);
 }
 

@@ -5,10 +5,12 @@ in vec3 position;
 in vec4 color;
 in vec2 uvCoords;
 in int gl_InstanceID;
+
 uniform int size;
 uniform mat4 modelMatrix;
 uniform mat4 viewProjMatrix;
 
+flat out int instance;
 out vec2 fuvCoords;
 out vec4 fcolor;
 
@@ -40,6 +42,8 @@ void main() {
     {
         fuvCoords.t = increment * row + increment;
     }
+
+    instance = gl_InstanceID;
 
 //    fcolor = vec4(increment, increment, increment, 1);
 //    fcolor = vec4(0, (col+1)/floatSize, 0, 1);

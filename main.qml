@@ -26,7 +26,10 @@ Window {
         MouseArea{
             id: glHitArea
             anchors.fill: parent
-            onClicked: glItem.handleMouseClicked(mouseX, mouseY);
+            onClicked: {
+                glItem.handleMouseClicked(mouseX, mouseY);
+                mainWin.requestUpdate()
+            }
         }
     }
 
