@@ -11,12 +11,16 @@ class OGLItem : public QQuickItem
 public:
     OGLItem();
 
+    void endGame();
+
 signals:
+    void gameEnd();
 
 public slots:
     void sync();
     void cleanup();
     void handleMouseClicked(int x, int y);
+    void startGame(int size);
 
 private slots:
     void handleWindowChanged(QQuickWindow *win);

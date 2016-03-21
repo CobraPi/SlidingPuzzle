@@ -16,41 +16,8 @@ SlidingPuzzle2DRenderer::SlidingPuzzle2DRenderer(OGLItem *parent)
 {
     qsrand(QTime::currentTime().second());
     oglItem = parent;
-    initializeOpenGLFunctions();
-
-    prog = new QOpenGLShaderProgram();
-    vertSource = SlidingPuzzleUtility::GetTextFromFile(":/sliding2d.vert");
-    fragSource = SlidingPuzzleUtility::GetTextFromFile(":/sliding2d.frag");
-    prog->addShaderFromSourceCode(QOpenGLShader::Vertex, vertSource.c_str());
-    prog->addShaderFromSourceCode(QOpenGLShader::Fragment, fragSource.c_str());
-
-    prog->link();
-
-    texture = new QOpenGLTexture(QImage(QString(":/test_cat.png")).mirrored());
-
-    instancePosAttr = prog->attributeLocation("instancePos");
-    vertexPosAttr = prog->attributeLocation("position");
-    vertexClrAttr = prog->attributeLocation("color");
-    vertexUvAttr = prog->attributeLocation("uvCoords");
-    hiddenInstanceAttr = prog->uniformLocation("hiddenInstance");
-    modelMatrixAttr = prog->uniformLocation("modelMatrix");
-    viewProjMatrixAttr = prog->uniformLocation("viewProjMatrix");
-
-//    qDebug() << "Hidden Attr: " << hiddenInstanceAttr;
-//    qDebug() << "Instance Pos Attr: " << instancePosAttr;
-//    qDebug() << "Vertex Pos Attr: " << vertexPosAttr;
-//    qDebug() << "Vertex Clr Attr: " << vertexClrAttr;
-//    qDebug() << "Vertex UV Attr: " << vertexUvAttr;
-//    qDebug() << "Model Matrix Attr: " << modelMatrixAttr;
-//    qDebug() << "View Proj Attr: " << viewProjMatrixAttr;
-
+    prog = nullptr;
     funcs = nullptr;
-//    funcs = (QOpenGLFunctions_4_3_Core*)QOpenGLContext::currentContext()->versionFunctions();
-//    if (funcs == nullptr)
-//    {
-//        qDebug() << "Funcs do not exist.";
-//        return;
-//    }
 
     vertices.append(Vertex(QVector3D(-.5, -.5, 0),
                            QVector4D(0, 1.0, 0, 1.0),
@@ -87,6 +54,7 @@ SlidingPuzzle2DRenderer::~SlidingPuzzle2DRenderer()
 
 void SlidingPuzzle2DRenderer::resetPuzzle(int size)
 {
+    positions.clear();
     puzzleSize = size;
     for (int i=0; i<puzzleSize; i++)
     {
@@ -156,6 +124,7 @@ int SlidingPuzzle2DRenderer::handleMouseHit(int x, int y)
     {
         qDebug() << "Win";
         hiddenInstance = -1;
+        oglItem->endGame();
     }
 
     oglItem->window()->update();
@@ -227,22 +196,60 @@ bool SlidingPuzzle2DRenderer::checkForComplete()
 void SlidingPuzzle2DRenderer::setViewportSize(const QSize &size)
 {
     viewportSize = size;
-//    projectionMat.perspective(45, (float) size.width()/size.height(), .01, 10);
 }
 
 void SlidingPuzzle2DRenderer::setWindow(QQuickWindow *window)
 {
     //qDebug() << "Window Set";
     this->window = window;
+}
 
-    funcs = (QOpenGLFunctions_4_3_Core*)QOpenGLContext::currentContext()->versionFunctions();
-
-    prog->bind();
-    if (vao.isCreated())
+void SlidingPuzzle2DRenderer::paint()
+{
+    if (funcs == nullptr)
     {
+        funcs = (QOpenGLFunctions_4_3_Core*)QOpenGLContext::currentContext()->versionFunctions();
+        if (funcs == nullptr)
+        {
+            qDebug() << "Funcs do not exist. Will not draw.";
+            return;
+        }
+    }
+
+    if (prog == nullptr)
+    {
+        initializeOpenGLFunctions();
+
+        prog = new QOpenGLShaderProgram();
+        vertSource = SlidingPuzzleUtility::GetTextFromFile(":/sliding2d.vert");
+        fragSource = SlidingPuzzleUtility::GetTextFromFile(":/sliding2d.frag");
+        prog->addShaderFromSourceCode(QOpenGLShader::Vertex, vertSource.c_str());
+        prog->addShaderFromSourceCode(QOpenGLShader::Fragment, fragSource.c_str());
+
+        prog->link();
+
+        texture = new QOpenGLTexture(QImage(QString(":/test_cat.png")).mirrored());
+
+        instancePosAttr = prog->attributeLocation("instancePos");
+        vertexPosAttr = prog->attributeLocation("position");
+        vertexClrAttr = prog->attributeLocation("color");
+        vertexUvAttr = prog->attributeLocation("uvCoords");
+        hiddenInstanceAttr = prog->uniformLocation("hiddenInstance");
+        modelMatrixAttr = prog->uniformLocation("modelMatrix");
+        viewProjMatrixAttr = prog->uniformLocation("viewProjMatrix");
+
+        //    qDebug() << "Hidden Attr: " << hiddenInstanceAttr;
+        //    qDebug() << "Instance Pos Attr: " << instancePosAttr;
+        //    qDebug() << "Vertex Pos Attr: " << vertexPosAttr;
+        //    qDebug() << "Vertex Clr Attr: " << vertexClrAttr;
+        //    qDebug() << "Vertex UV Attr: " << vertexUvAttr;
+        //    qDebug() << "Model Matrix Attr: " << modelMatrixAttr;
+        //    qDebug() << "View Proj Attr: " << viewProjMatrixAttr;
+
         vao.create();
     }
 
+    prog->bind();
     vao.bind();
     prog->enableAttributeArray(instancePosAttr);
     funcs->glVertexAttribDivisor(instancePosAttr, 1);
@@ -270,8 +277,6 @@ void SlidingPuzzle2DRenderer::setWindow(QQuickWindow *window)
     positionBuffer.create();
     positionBuffer.bind();
 
-    puzzleSize = 4;
-
     positionBuffer.allocate(positions.constData(), sizeof(QVector3D) * positions.size());
     prog->setAttributeBuffer(instancePosAttr, GL_FLOAT, 0, 3);
 
@@ -280,18 +285,6 @@ void SlidingPuzzle2DRenderer::setWindow(QQuickWindow *window)
 
     modelMat.setToIdentity();
     modelMat.scale(2.0f/puzzleSize);
-}
-
-void SlidingPuzzle2DRenderer::paint()
-{
-    if (funcs == nullptr)
-    {
-        qDebug() << "Funcs do not exist. Will not draw.";
-        return;
-    }
-
-    prog->bind();
-    vao.bind();
 
     positionBuffer.allocate(positions.constData(), sizeof(QVector3D) * positions.size());
 //    positionBuffer.write(0, positions.constData(), sizeof(QVector3D) * positions.size());
@@ -301,7 +294,7 @@ void SlidingPuzzle2DRenderer::paint()
     prog->setUniformValue(modelMatrixAttr, modelMat);
 
     prog->setUniformValue("size", puzzleSize);
-    prog->setUniformValue("texture", 0);
+//    prog->setUniformValue("texture", 0);
     texture->bind();
 
 //    qDebug() << "size: " << oglItem->width() << ", " << oglItem->height();

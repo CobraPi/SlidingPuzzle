@@ -9,6 +9,11 @@ OGLItem::OGLItem()
     connect(this, &QQuickItem::windowChanged, this, &OGLItem::handleWindowChanged);
 }
 
+void OGLItem::endGame()
+{
+    emit gameEnd();
+}
+
 void OGLItem::handleWindowChanged(QQuickWindow *win)
 {
     if (win) {
@@ -23,6 +28,12 @@ void OGLItem::handleMouseClicked(int x, int y)
     qDebug() << "Mouse Clicked: " << x << ", " << y;
     int hit = sp2DRenderer->handleMouseHit(x, y);
     qDebug() << "Hit: " << hit;
+}
+
+void OGLItem::startGame(int size)
+{
+    sp2DRenderer->resetPuzzle(size);
+    window()->update();
 }
 
 void OGLItem::cleanup()
