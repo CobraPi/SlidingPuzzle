@@ -97,11 +97,12 @@ int SlidingPuzzle2DRenderer::handleMouseHit(int x, int y)
     worldC.setX((worldC.x() - halfww) / halfww);
     worldC.setY((worldC.y() - halfwh) / halfwh);
 
-    worldC = /*projectionMat * cameraMat * modelMat **/  worldC;
+    worldC = /*projectionMat * cameraMat * modelMat * */  worldC;
 
 //    qDebug() << "Coords: " << worldC;
 
-    float cellSize = (1.0f/puzzleSize)/2;
+    float cellSize = (1.0f/puzzleSize);
+//    qDebug() << "Cell Size: " << cellSize;
 
     QMatrix4x4 mat = projectionMat * cameraMat *  modelMat;
 
@@ -117,6 +118,8 @@ int SlidingPuzzle2DRenderer::handleMouseHit(int x, int y)
             break;
         }
     }
+
+//    qDebug() << "Hit: " << hit;
 
     checkForSwap(hit);
 
