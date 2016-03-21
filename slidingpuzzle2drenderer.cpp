@@ -122,7 +122,6 @@ void SlidingPuzzle2DRenderer::setWindow(QQuickWindow *window)
     positionBuffer.bind();
 
     puzzleSize = 4;
-    float fsize = (float)puzzleSize;
     for (int i=0; i<puzzleSize; i++)
     {
         for (int j=0; j<puzzleSize; j++)
@@ -136,10 +135,10 @@ void SlidingPuzzle2DRenderer::setWindow(QQuickWindow *window)
     prog->setAttributeBuffer(instancePosAttr, GL_FLOAT, 0, 3);
 
     cameraMat.setToIdentity();
-    cameraMat.translate(-1-(1/fsize), -1-(1/fsize), -3);
+    cameraMat.translate(-1-(1.0f/puzzleSize), -1-(1.0f/puzzleSize), -3);
 
     modelMat.setToIdentity();
-    modelMat.scale(2/fsize);
+    modelMat.scale(2.0f/puzzleSize);
 }
 
 int SlidingPuzzle2DRenderer::getClosestCell(int x, int y)
@@ -181,7 +180,9 @@ void SlidingPuzzle2DRenderer::paint()
         return;
     }
 
+    prog->bind();
     vao.bind();
+
     prog->setUniformValue(viewProjMatrixAttr, projectionMat * cameraMat);
     prog->setUniformValue(modelMatrixAttr, modelMat);
 
