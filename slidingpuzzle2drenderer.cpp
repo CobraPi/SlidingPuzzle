@@ -70,7 +70,7 @@ void SlidingPuzzle2DRenderer::resetPuzzle(int size)
 //    qDebug() << "Hidden: " << hiddenInstance;
 
     int swapCount = size*size*size;
-    swapCount = 1; // For win testing
+//    swapCount = 1; // For win testing
     for (int i=0; i<swapCount; i++)
     {
         auto n = getHiddenNeighbors();

@@ -1,22 +1,28 @@
 import QtQuick 2.6
 import QtQuick.Controls 1.4
 import QtQuick.Controls.Styles 1.4
+import QtQuick.Layouts 1.3
 import QtQuick.Window 2.2
 import SlidingPuzzle 1.0
 
 Window {
     id: mainWin
+    title: "Sliding Puzzle"
     visible: true
     width: 600
     height: 600
 
     onWidthChanged: {
+        height = width
         setOGLSize()
     }
 
     onHeightChanged: {
         setOGLSize()
+        height = width
     }
+
+    property bool sizeSet: true
 
     OGLItem {
         id: glItem
@@ -35,7 +41,9 @@ Window {
         }
 
         onGameEnd: {
-            endItem.visible = true
+            endMenu.visible = true
+            completeText.text = "Complete!"
+            sizeSet = false
         }
     }
 
@@ -116,8 +124,8 @@ Window {
     }
 
     Item{
-        id: endItem
-        visible: false
+        id: endMenu
+//        visible: false
         width: mainWin.width
         height: mainWin.height
 
@@ -129,26 +137,83 @@ Window {
         Text {
             id: completeText
             anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-            text: "Complete!"
+            anchors.bottom: settingsLayout.top
+            anchors.bottomMargin: 50
+            text: "Sliding Puzzle Game"
             font{
-                pixelSize: parent.width < parent.height ? parent.width/10 : parent.height/10
+                pixelSize: winReleativeSize(10)
+            }
+        }
+
+        ColumnLayout {
+            id: settingsLayout
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+
+            Text {
+                anchors.topMargin: 20
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "Puzzle Size"
+                font{
+                    pixelSize: winReleativeSize(20)
+                }
+            }
+
+            Slider {
+                id: puzzleSizeSlider
+                anchors.horizontalCenter: parent.horizontalCenter
+                minimumValue: 3
+                maximumValue: 10
+                stepSize: 1
+                tickmarksEnabled: true
+                value: 4
+
+                style: SliderStyle {
+                    groove: Rectangle {
+                        implicitWidth: 200
+                        implicitHeight: 8
+                        color: "gray"
+                        radius: 8
+//                        Rectangle {
+//                            width: styleData.handlePosition
+//                            height: parent.height
+//                            color: "white"
+//                            radius: 8
+//                        }
+                    }
+                    handle: Rectangle {
+                        anchors.centerIn: parent
+                        color: control.pressed ? "lightgrey" : "white"
+                        border.width: 1
+                        implicitWidth: 20
+                        implicitHeight: width
+                        radius: width/2
+                    }
+                }
+            }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: puzzleSizeSlider.value + "X" + puzzleSizeSlider.value
+                font{
+                    pixelSize: winReleativeSize(25)
+                }
             }
         }
 
         Button {
-            id: playAgainBtn
+            id: setSizeBtn
             onClicked: {
-                glItem.startGame(4)
-                endItem.visible = false
+                glItem.startGame(puzzleSizeSlider.value)
+                sizeSet = true
             }
             anchors.topMargin: 20
-            anchors.top: completeText.bottom
+            anchors.top: settingsLayout.bottom
             anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width < parent.height ? parent.width/3 : parent.height/3
+            width: winReleativeSize(3)
             height: width/4
             Label {
-                text: "Play Again"
+                text: "Set Size"
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 font {
@@ -157,26 +222,40 @@ Window {
             }
         }
 
-//        Button {
-//            id: settingsBtn
-//            onClicked: console.log("Settings")
-//            anchors.top: playAgainBtn.bottom
-//            anchors.horizontalCenter: parent.horizontalCenter
-//            width: parent.width < parent.height ? parent.width/3 : parent.height/3
-//            height: width/4
-//            Label {
-//                text: "Settings"
-//                anchors.horizontalCenter: parent.horizontalCenter
-//                anchors.verticalCenter: parent.verticalCenter
-//                font {
-//                    pixelSize: parent.height * .5
-//                }
-//            }
-//        }
+        Button {
+            id: playAgainBtn
+            onClicked: {
+                endMenu.visible = false
+                if (!sizeSet)
+                {
+                    glItem.startGame(puzzleSizeSlider.value)
+                }
+
+                glItem.enableInput()
+            }
+            anchors.topMargin: 20
+            anchors.top: setSizeBtn.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: winReleativeSize(3)
+            height: width/4
+            Label {
+                text: "Play"
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                font {
+                    pixelSize: parent.height * .5
+                }
+            }
+        }
     }
 
     Component.onCompleted: {
         setOGLSize()
+    }
+
+    function winReleativeSize(factor)
+    {
+        return mainWin.width < mainWin.height ? mainWin.width/factor : mainWin.height/factor;
     }
 
     function setOGLSize()

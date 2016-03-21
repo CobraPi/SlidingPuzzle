@@ -21,12 +21,14 @@ public slots:
     void cleanup();
     void handleMouseClicked(int x, int y);
     void startGame(int size);
+    void enableInput();
 
 private slots:
     void handleWindowChanged(QQuickWindow *win);
 
 private:
     SlidingPuzzle2DRenderer* sp2DRenderer;
+    bool inputEnabled;
 };
 
 #endif // OGLITEM_H

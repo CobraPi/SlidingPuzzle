@@ -6,11 +6,13 @@ OGLItem::OGLItem()
 {
     sp2DRenderer = nullptr;
     setFlag(QQuickItem::ItemHasContents, true);
+    inputEnabled = false;
     connect(this, &QQuickItem::windowChanged, this, &OGLItem::handleWindowChanged);
 }
 
 void OGLItem::endGame()
 {
+    inputEnabled = false;
     emit gameEnd();
 }
 
@@ -25,15 +27,23 @@ void OGLItem::handleWindowChanged(QQuickWindow *win)
 
 void OGLItem::handleMouseClicked(int x, int y)
 {
-//    qDebug() << "Mouse Clicked: " << x << ", " << y;
-    sp2DRenderer->handleMouseHit(x, y);
-//    qDebug() << "Hit: " << hit;
+    if (inputEnabled)
+    {
+    //    qDebug() << "Mouse Clicked: " << x << ", " << y;
+        sp2DRenderer->handleMouseHit(x, y);
+    //    qDebug() << "Hit: " << hit;
+    }
 }
 
 void OGLItem::startGame(int size)
 {
     sp2DRenderer->resetPuzzle(size);
     window()->update();
+}
+
+void OGLItem::enableInput()
+{
+    inputEnabled = true;
 }
 
 void OGLItem::cleanup()
