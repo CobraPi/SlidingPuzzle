@@ -26,7 +26,7 @@ public:
 
     void setViewportSize(const QSize &size);
     void setWindow(QQuickWindow *window);
-    int getClosestCell(int x, int y);
+    int handleMouseHit(int x, int y);
     void resetPuzzle(int size);
 
     ~SlidingPuzzle2DRenderer();
@@ -70,6 +70,9 @@ private:
     int vertexPosAttr;
     int vertexClrAttr;
     int vertexUvAttr;
+
+    QVector<int> getHiddenNeighbors();
+    void checkForSwap(int hit);
 };
 
 #endif // SLIDINGPUZZLE2DRENDERER_H

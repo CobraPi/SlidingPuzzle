@@ -99,10 +99,18 @@ void SlidingPuzzle2DRenderer::resetPuzzle(int size)
 
     hiddenInstance = qrand() % positions.size();
     hiddenPosition = hiddenInstance;
-    qDebug() << "Hidden: " << hiddenInstance;
+//    qDebug() << "Hidden: " << hiddenInstance;
+
+    int swapCount = size*size*size;
+    for (int i=0; i<swapCount; i++)
+    {
+        auto n = getHiddenNeighbors();
+        int index = qrand() % n.size();
+        checkForSwap(n[index]);
+    }
 }
 
-int SlidingPuzzle2DRenderer::getClosestCell(int x, int y)
+int SlidingPuzzle2DRenderer::handleMouseHit(int x, int y)
 {
     int hit = -1;
 
@@ -136,6 +144,15 @@ int SlidingPuzzle2DRenderer::getClosestCell(int x, int y)
         }
     }
 
+    checkForSwap(hit);
+
+    oglItem->window()->update();
+//    qDebug() << "Hit: " << hit;
+    return hit;
+}
+
+QVector<int> SlidingPuzzle2DRenderer::getHiddenNeighbors()
+{
     QVector<int> hiddenNeighbors;
     QVector3D hVec = positions[hiddenInstance];
 
@@ -148,14 +165,20 @@ int SlidingPuzzle2DRenderer::getClosestCell(int x, int y)
 
         QVector3D vec = positions[i];
         if ((vec.x() == hVec.x() && vec.y() - 1 == hVec.y()) || // above hVec
-                (vec.x() == hVec.x() && vec.y() + 1 == hVec.y()) || // below hVec
-                (vec.x() - 1 == hVec.x() && vec.y() == hVec.y()) || // right of hVec
-                (vec.x() + 1 == hVec.x() && vec.y() == hVec.y())) // left of hVec
+             (vec.x() == hVec.x() && vec.y() + 1 == hVec.y()) || // below hVec
+             (vec.x() - 1 == hVec.x() && vec.y() == hVec.y()) || // right of hVec
+             (vec.x() + 1 == hVec.x() && vec.y() == hVec.y())) // left of hVec
         {
             hiddenNeighbors.append(i);
-            qDebug() << "Neighbor found: " << i;
+//            qDebug() << "Neighbor found: " << i;
         }
     }
+    return hiddenNeighbors;
+}
+
+void SlidingPuzzle2DRenderer::checkForSwap(int hit)
+{
+    QVector<int> hiddenNeighbors = getHiddenNeighbors();
     for(int i=0; i<hiddenNeighbors.size(); i++)
     {
         if (hiddenNeighbors[i] == hit)
@@ -163,14 +186,11 @@ int SlidingPuzzle2DRenderer::getClosestCell(int x, int y)
             QVector3D temp = positions[hiddenInstance];
             positions[hiddenInstance] = positions[hit];
             positions[hit] = temp;
-            qDebug() << "Swapping: " << hiddenPosition << "->" << hit;
+//            qDebug() << "Swapping: " << hiddenPosition << "->" << hit;
             hiddenPosition = hit;
             break;
         }
     }
-    oglItem->window()->update();
-//    qDebug() << "Hit: " << hit;
-    return hit;
 }
 
 void SlidingPuzzle2DRenderer::setViewportSize(const QSize &size)

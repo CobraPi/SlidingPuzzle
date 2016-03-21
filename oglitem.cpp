@@ -21,7 +21,7 @@ void OGLItem::handleWindowChanged(QQuickWindow *win)
 void OGLItem::handleMouseClicked(int x, int y)
 {
     qDebug() << "Mouse Clicked: " << x << ", " << y;
-    int hit = sp2DRenderer->getClosestCell(x, y);
+    int hit = sp2DRenderer->handleMouseHit(x, y);
     qDebug() << "Hit: " << hit;
 }
 
