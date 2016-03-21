@@ -22,6 +22,7 @@ public slots:
     void handleMouseClicked(int x, int y);
     void startGame(int size);
     void enableInput();
+    void disableInput();
 
 private slots:
     void handleWindowChanged(QQuickWindow *win);

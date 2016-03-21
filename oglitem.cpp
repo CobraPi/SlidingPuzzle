@@ -46,6 +46,11 @@ void OGLItem::enableInput()
     inputEnabled = true;
 }
 
+void OGLItem::disableInput()
+{
+    inputEnabled = false;
+}
+
 void OGLItem::cleanup()
 {
     if (sp2DRenderer) {

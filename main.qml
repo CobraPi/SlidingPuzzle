@@ -48,6 +48,38 @@ Window {
     }
 
     Item {
+        width: mainWin.width
+        height: mainWin.height
+        opacity: .5
+        visible: !endMenu.visible
+
+        Button {
+            anchors.left: parent.left
+            anchors.top: parent.top
+
+            height: 50
+            width: 50
+
+            onClicked: {
+                endMenu.visible = true
+                glItem.disableInput()
+            }
+
+            Label {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                text: "||"
+                font {
+                    weight: Font.ExtraBold
+                    pixelSize: 25
+                    bold: true
+                }
+                lineHeight: 1.1
+            }
+        }
+    }
+
+    Item {
         id: miniImage
         width: mainWin.width
         height: mainWin.height
@@ -89,8 +121,8 @@ Window {
                     name: "max"
                     PropertyChanges {
                         target: miniPicContainer
-                        width: miniImage.width < miniImage.height ? miniImage.width/2 : miniImage.height/2
-                        height: miniImage.width < miniImage.height ? miniImage.width/2 : miniImage.height/2
+                        width: winReleativeSize(2)
+                        height: winReleativeSize(2)
                         opacity: 1
                     }
                 },
