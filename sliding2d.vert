@@ -18,7 +18,6 @@ void main() {
     vec3 realPos = position + instancePos;
     gl_Position = viewProjMatrix * modelMatrix * vec4(realPos, 1);
 
-
     int row = gl_InstanceID%size;
     int col = gl_InstanceID/size;
 
@@ -45,8 +44,5 @@ void main() {
 
     instance = gl_InstanceID;
 
-//    fcolor = vec4(increment, increment, increment, 1);
-//    fcolor = vec4(0, (col+1)/floatSize, 0, 1);
-//    fcolor = vec4((row+1)/floatSize, 0, 0, 1);
     fcolor = vec4(1,1,1,1);
 }

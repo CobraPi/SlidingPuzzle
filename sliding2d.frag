@@ -1,7 +1,5 @@
 #version 430
 
-in int fsize;
-in int instanceID;
 in vec2 fuvCoords;
 in vec4 fcolor;
 flat in int instance;
